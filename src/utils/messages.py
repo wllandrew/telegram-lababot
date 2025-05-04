@@ -1,4 +1,4 @@
-from main import BOT_USERNAME, BOT_NAME, TOKEN
+import env
 
 class Message:
     """
@@ -20,7 +20,7 @@ class Message:
         text = update.message.text
 
         if type == 'group' or type == 'supergroup':
-            if BOT_USERNAME in text:
+            if env.BOT_USERNAME in text:
                 response = Message.message_processing(text)
             else:
                 return

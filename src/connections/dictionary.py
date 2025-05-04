@@ -10,7 +10,10 @@ class Dictionary:
 
     @staticmethod
     def get_definitions(word : str) -> list[str]:
-        data = Dictionary.get_word(word)[0]['xml']
+        try:
+            data = Dictionary.get_word(word)[0]['xml']
+        except Exception:
+            return False
         root = et.fromstring(data)
         return root.find(".//def").text
         

@@ -1,4 +1,3 @@
-from main import BOT_USERNAME, BOT_NAME, TOKEN
 import connections.dictionary as dic
 
 class Commands:
@@ -16,14 +15,20 @@ class Commands:
         print("Hello comand")
         await update.message.reply_text("Olá, eu sou o Lababot.")
     
+    @staticmethod
     async def def_command(update, context):
         text = update.message.text
         word = text.split()[1]
         data = dic.Dictionary.get_definitions(word)
 
-        resp = f"Estas são as definições para {word}"
-        for n in data.split('\n'):
-            resp += n + "\n"
+        if not data:
+            await update.message.reply_text(f"Não consigo achar a definição para {word}!!")
+            return
+
+        resp = f"Estas são as definições para {word}:\n"
+        definitions = data.split("\n")
+        for i in range(len(definitions)):
+            resp += f"{i} - {definitions[i]}\n"
         
         await update.message.reply_text(resp)
         
