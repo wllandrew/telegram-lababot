@@ -1,6 +1,7 @@
 import os
 import utils.commands as commands
 import utils.messages as messages
+import connections
 from dotenv import load_dotenv
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
@@ -17,6 +18,7 @@ def main():
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("hello", commands.hello_command))
     app.add_handler(CommandHandler("start", commands.start_command))
+    app.add_handler(CommandHandler("def", commands.def_command))
 
     app.add_handler(MessageHandler(filters.TEXT, messages.message_handler))
     print("Bot inicializado.")
