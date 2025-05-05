@@ -1,7 +1,8 @@
 import env
 from utils.commands import Commands
 from utils.messages import Message
-from telegram.ext import Application, CommandHandler, MessageHandler, filters
+from utils.conversations import Conversations
+from telegram.ext import Application, CommandHandler, MessageHandler, ConversationHandler,filters
 
 
 def main():
@@ -13,6 +14,9 @@ def main():
     app.add_handler(CommandHandler("hello", Commands.hello_command))
     app.add_handler(CommandHandler("start", Commands.start_command))
     app.add_handler(CommandHandler("def", Commands.def_command))
+    app.add_handler(CommandHandler("seetasks", Commands.seetasks_command))
+
+    app.add_handler(Conversations.addtask_conversation)
 
     app.add_handler(MessageHandler(filters.TEXT, Message.message_handler))
     

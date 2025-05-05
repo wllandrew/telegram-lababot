@@ -1,4 +1,6 @@
+from connections.database import DB
 import connections.dictionary as dic
+from telegram.ext import ConversationHandler
 
 class Commands:
     """
@@ -41,3 +43,25 @@ class Commands:
         
         await update.message.reply_text(message)
         
+
+    @staticmethod
+    async def addtask_command(update, context):
+        
+        return 0 # Redireciona para ask_task_name no conversation_handler
+    
+    @staticmethod
+    async def ask_task_name(update, contextn):
+        return 1 # Redireciona para ask_task_date no conversation_handler
+    
+    @staticmethod
+    async def ask_task_date(update, context):
+        return ConversationHandler.END
+    
+    @staticmethod
+    async def conversation_cancel(update, context):
+        await update.message.reply_text("Não consegui realizar essa operação...")
+        return ConversationHandler.END
+    
+    @staticmethod
+    async def seetasks_command(update, context):
+        pass
