@@ -1,5 +1,7 @@
-from connections.database import DB
-import connections.dictionary as dic
+import re
+from connections.exceptions.DatabaseException import DatabaseException
+from connections.Database import DB
+import connections.Dictionary as dic
 from telegram.ext import ConversationHandler
 
 class Commands:
@@ -46,22 +48,47 @@ class Commands:
 
     @staticmethod
     async def addtask_command(update, context):
-        
+        await update.message.reply_text("Qual o nome da sua tarefa?: ")
         return 0 # Redireciona para ask_task_name no conversation_handler
     
     @staticmethod
-    async def ask_task_name(update, contextn):
+    async def ask_task_name(update, context):
+        name = update.message.text
+        if not name:
+            return Commands.conversation_cancel(update, context)
+
+        context.user_data["task_name"] = name
+        await update.message.reply_text("Qual a data para entrega? (DD/MM)")
+
         return 1 # Redireciona para ask_task_date no conversation_handler
     
     @staticmethod
     async def ask_task_date(update, context):
+        date = update.message.text
+        if not re.search("\d{1,2}\/\d{1,2}\/\d{2,4}", date):
+            return Commands.conversation_cancel(update, context)
+        
+        ## Implement date validation
+        try:
+            DB.add_task(update.message.chat.id, context.user_data["task_name"], date)
+        except DatabaseException as e:
+            print(e.message)
+
         return ConversationHandler.END
     
     @staticmethod
     async def conversation_cancel(update, context):
+        context.user_data.clear()
         await update.message.reply_text("Não consegui realizar essa operação...")
         return ConversationHandler.END
     
     @staticmethod
     async def seetasks_command(update, context):
-        pass
+        tasks = DB.get_tasks(update.message.chat.id)
+
+        message = "Aqui estão suas tarefas: "
+
+        for task in tasks:
+            message += f"{task["date"]} - {task["name"]}"
+        
+        await update.message.reply_text(message)
