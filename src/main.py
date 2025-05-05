@@ -16,8 +16,10 @@ def main():
 
     app.add_handler(MessageHandler(filters.TEXT, Message.message_handler))
     
-    print("Bot inicializado.")
-    app.run_polling()
+    app.add_error_handler(Message.error_message)
+    
+    print("Bot inicializado.\n-----")
+    app.run_polling(poll_interval=2)
 
 if __name__ == "__main__":
     main()

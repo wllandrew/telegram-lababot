@@ -2,6 +2,10 @@ from requests import get
 import xml.etree.ElementTree as et
 
 class Dictionary:
+    """
+    Classe que faz integração com a API do Dicionário Aberto.
+    """
+
     url = "https://api.dicionario-aberto.net"
     
     @staticmethod
@@ -14,6 +18,9 @@ class Dictionary:
             data = Dictionary.get_word(word)[0]['xml']
         except Exception:
             return False
+        
         root = et.fromstring(data)
-        return root.find(".//def").text
+        definitions = root.findall(".//def")
+
+        return [definition.text for definition in definitions]
         
