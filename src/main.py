@@ -17,6 +17,7 @@ def main():
     app.add_handler(CommandHandler("seetasks", Commands.seetasks_command))
 
     app.add_handler(Conversations.addtask_conversation)
+    app.add_handler(Conversations.removetask_conversation)
 
     app.add_handler(MessageHandler(filters.TEXT, Message.message_handler))
     
