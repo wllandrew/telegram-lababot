@@ -2,6 +2,7 @@ from datetime import datetime
 from connections.Database import DB
 import connections.Dictionary as dic
 from telegram.ext import ConversationHandler
+from telegram import constants as cts
 
 class Commands:
     """
@@ -11,12 +12,14 @@ class Commands:
     @staticmethod
     async def start_command(update, context):
         print("/start command\n------")
-        await update.message.reply_text("Eu sou o LabaBot, um bot que te ajuda a estudar.\nUse **/** para ver meus comandos.")
+        await update.message.reply_text("Eu sou o LabaBot, um bot que te ajuda a estudar.\nUse <bd>/</b> para ver meus comandos.",
+                                        parse_mode=cts.ParseMode.HTML)
 
     @staticmethod
     async def hello_command(update, context):
         print("/hello comand\n------")
-        await update.message.reply_text("Olá, eu sou o **Lababot**, um bot criado por *wllandrew @ github*, como posso te ajudar?")
+        await update.message.reply_text("Olá, eu sou o <b>Lababot</b>, um bot criado por <i>wllandrew @ github</i>, como posso te ajudar?",
+                                        parse_mode=cts.ParseMode.HTML)
     
     @staticmethod
     async def def_command(update, context):
@@ -32,17 +35,17 @@ class Commands:
 
         print("Status OK\n------")
 
-        message = f"Aqui estão as definições para **{word}**:\n"
+        message = f"Aqui estão as definições para <b>{word}</b>:\n\n<i>"
 
         count = 1
         for definition in data:
             for line in definition.split('\n'):
                 if not line:
                     continue
-                message += f"*{count} - {line}*\n".replace('_', '')
+                message += f"{count} - {line}\n".replace('_', '')
                 count += 1
         
-        await update.message.reply_text(message)
+        await update.message.reply_text(f"{message}</i>", parse_mode=cts.ParseMode.HTML)
         
 
     ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE = range(3)
@@ -144,9 +147,9 @@ class Commands:
             await update.message.reply_text("Você não possui tarefas salvas!!")
             return
 
-        message = "Aqui estão suas tarefas:\n"
+        message = "Aqui estão suas tarefas:\n\n"
 
         for task in tasks:
-            message += f"*{task["date"]} - {task["name"]}*\n"
+            message += f"<i>{task["date"]}</i> - <b>{task["name"]}</b>\n"
         
-        await update.message.reply_text(message)
+        await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
