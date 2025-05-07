@@ -1,5 +1,4 @@
-import re
-from connections.exceptions.DatabaseException import DatabaseException
+from datetime import datetime
 from connections.Database import DB
 import connections.Dictionary as dic
 from telegram.ext import ConversationHandler
@@ -46,34 +45,39 @@ class Commands:
         await update.message.reply_text(message)
         
 
+    ASK_NAME, ASK_DATE = range(2)
+
     @staticmethod
     async def addtask_command(update, context):
         await update.message.reply_text("Qual o nome da sua tarefa?: ")
-        return 0 # Redireciona para ask_task_name no conversation_handler
+        return Commands.ASK_NAME # Redireciona para ask_task_name no conversation_handler
     
     @staticmethod
-    async def ask_task_name(update, context):
+    async def ask_task_name_command(update, context):
         name = update.message.text
         if not name:
             return Commands.conversation_cancel(update, context)
+        
+        print("Processing task name")
 
         context.user_data["task_name"] = name
         await update.message.reply_text("Qual a data para entrega? (DD/MM)")
 
-        return 1 # Redireciona para ask_task_date no conversation_handler
+        return Commands.ASK_DATE # Redireciona para ask_task_date no conversation_handler
     
     @staticmethod
-    async def ask_task_date(update, context):
+    async def ask_task_date_command(update, context):
         date = update.message.text
-        if not re.search("\d{1,2}\/\d{1,2}\/\d{2,4}", date):
-            return Commands.conversation_cancel(update, context)
-        
-        ## Implement date validation
-        try:
-            DB.add_task(update.message.chat.id, context.user_data["task_name"], date)
-        except DatabaseException as e:
-            print(e.message)
+        print("Processando data da tarefa")     
 
+        try:
+            datetime.strptime(date, "%d/%m/%Y")
+            DB.add_task(update.message.chat.id, context.user_data["task_name"], date)
+        except Exception as e:
+            print(e)
+            return ConversationHandler.END
+
+        print("Registro com sucesso")
         return ConversationHandler.END
     
     @staticmethod

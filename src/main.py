@@ -15,7 +15,6 @@ def main():
     app.add_handler(CommandHandler("start", Commands.start_command))
     app.add_handler(CommandHandler("def", Commands.def_command))
     app.add_handler(CommandHandler("seetasks", Commands.seetasks_command))
-    app.add_handler(CommandHandler("addtasks", Commands.addtask_command))
 
     app.add_handler(Conversations.addtask_conversation)
 

@@ -4,11 +4,13 @@ from telegram.ext import ConversationHandler, MessageHandler, CommandHandler, fi
 
 class Conversations:
     
+    ASK_NAME, ASK_DATE = range(2)
+
     addtask_conversation = ConversationHandler(
-            entry_points=[CommandHandler("addtasks", Commands.addtask_command)],
+            entry_points=[CommandHandler("addtask", Commands.addtask_command)],
             states={
-                    0 : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_task_name)],
-                    1 : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_task_date)]
+                    ASK_NAME : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_task_name_command)],
+                    ASK_DATE : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_task_date_command)]
                 },
             fallbacks=[CommandHandler("cancel", Commands.conversation_cancel)]
         )

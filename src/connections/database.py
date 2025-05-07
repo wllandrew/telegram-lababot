@@ -1,6 +1,5 @@
-from pymongo import MongoClient
 import env
-from connections.exceptions.DatabaseException import DatabaseException
+from pymongo import MongoClient
 
 class DbConnection:
     """
@@ -23,12 +22,12 @@ class DbConnection:
     
     def add_task(self, id : int, task_name : str, task_date : str):
        
-        if not self.db.find({"_id" : id}):
-            DbConnection.add_user(id)
-            DbConnection.add_task(id, task_name)
+        if not self.db.find_one({"_id" : id}):
+            self.add_user(id)
+            self.add_task(id, task_name, task_date)
             return
-        elif DbConnection.check_task(id, task_name, task_date):
-            raise DatabaseException("Error in adding task: task already exists")
+        elif self.check_task(id, task_name, task_date):
+            raise Exception("Error in adding task: task already exists.")
         
         self.db.update_one({
                 "_id" : id
@@ -42,32 +41,34 @@ class DbConnection:
                 } 
             })
     
-    def remove_task(self, id : int, task_name : str):
+    def remove_task(self, id : int, task_name : str, task_date : str):
         self.db.update_one({
                 "_id" : id
             }, 
             { 
                 "$pull" : { 
-                    "tasks" : task_name 
+                    "tasks" : {
+                        "name" : task_name,
+                        "date" : task_date
+                    }
                 } 
             })
 
     def check_task(self, id : int, task_name : str, task_date : str):
-        return len(self.db.find({
+        return self.db.find_one({
                 "_id" : id,
                 "tasks" : {
-                    "name" : {"$in" : task_name},
-                    "date" : {"$in" : task_date}
+                    "name" : task_name,
+                    "date" : task_date
                 },
-
-            })) != 0
+            })
     
     def get_tasks(self, id : int):
-        return self.db.find({
+        return self.db.find_one({
                 "_id" : id
             }, 
             {
-                "tasks", 1
+                "tasks": 1
             })
     
 DB = DbConnection()
