@@ -4,7 +4,7 @@ from telegram.ext import ConversationHandler, MessageHandler, CommandHandler, fi
 
 class Conversations:
     
-    ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE = range(3)
+    ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE, ASK_TEST_DATE, VALIDATE_TEST_ADD, VALIDATE_TEST_REMOVE = range(6)
 
     addtask_conversation = ConversationHandler(
             entry_points=[CommandHandler("addtask", Commands.add_task_command)],
@@ -20,6 +20,24 @@ class Conversations:
             states={
                     ASK_DATE : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_taskdate)],
                     VALIDATE_REMOVE : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.validate_removetask)]
+                },
+            fallbacks=[CommandHandler("cancel", Commands.conversation_cancel)]
+        )
+    
+    addtest_conversation = ConversationHandler(
+            entry_points=[CommandHandler("addtest", Commands.add_test_command)],
+            states={
+                    ASK_TEST_DATE : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_test_date)],
+                    VALIDATE_TEST_ADD : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.validate_addtest)]
+                },
+            fallbacks=[CommandHandler("cancel", Commands.conversation_cancel)]
+        )
+    
+    removetest_conversation = ConversationHandler(
+            entry_points=[CommandHandler("removetest", Commands.remove_test_command)],
+            states={
+                    ASK_TEST_DATE : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_test_date)],
+                    VALIDATE_TEST_REMOVE : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.validate_removetest)]
                 },
             fallbacks=[CommandHandler("cancel", Commands.conversation_cancel)]
         )

@@ -12,7 +12,7 @@ class Commands:
     @staticmethod
     async def start_command(update, context):
         print("/start command\n------")
-        await update.message.reply_text("Eu sou o LabaBot, um bot que te ajuda a estudar.\nUse <bd>/</b> para ver meus comandos.",
+        await update.message.reply_text("Eu sou o LabaBot, um bot que te ajuda a estudar.\nUse <b>/</b> para ver meus comandos.",
                                         parse_mode=cts.ParseMode.HTML)
 
     @staticmethod
@@ -24,8 +24,15 @@ class Commands:
     @staticmethod
     async def def_command(update, context):
         print("/def command\n")
-        text = update.message.text
-        word = text.split()[1]
+        text = update.message.text.replace("/def", "")
+
+        if not text:
+            await update.message.reply_text("O comando /def deve ser usado como: <b>/def</b> <i>palavra</i>.",
+                                            parse_mode=cts.ParseMode.HTML)
+            return
+        
+        word = text.split()[0]
+        
         data = dic.Dictionary.get_definitions(word)
 
         if not data:
@@ -48,7 +55,7 @@ class Commands:
         await update.message.reply_text(f"{message}</i>", parse_mode=cts.ParseMode.HTML)
         
 
-    ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE = range(3)
+    ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE, ASK_TEST_DATE, VALIDATE_TEST_ADD, VALIDATE_TEST_REMOVE = range(6)
 
     @staticmethod
     async def add_task_command(update, context):
@@ -144,6 +151,9 @@ class Commands:
         try:
             tasks = DB.get_tasks(update.message.chat.id)["tasks"]
         except Exception:
+            return
+        
+        if not tasks:
             await update.message.reply_text("Você não possui tarefas salvas!!")
             return
 
@@ -151,5 +161,104 @@ class Commands:
 
         for task in tasks:
             message += f"<i>{task["date"]}</i> - <b>{task["name"]}</b>\n"
+        
+        await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
+
+    @staticmethod
+    async def add_test_command(update, context):
+        print("/addtest Command")
+        context.user_data["test_operation"] = "add"
+
+        if update.message.chat.type != "private":
+            await update.message.reply_text("Esse comando só pode ser usado em chats privados!!")
+            return
+
+        await update.message.reply_text("Qual a sua prova?")
+        return Commands.ASK_TEST_DATE 
+    
+    @staticmethod
+    async def ask_test_date(update, context):
+        name = update.message.text
+        if not name:
+            return Commands.conversation_cancel(update, context)
+        
+        print("1.Processando prova")
+
+        context.user_data["test_name"] = name
+        await update.message.reply_text("Qual a data da prova? (DD/MM/AAAA")
+
+        if context.user_data["test_operation"] == "remove":
+            return Commands.VALIDATE_TEST_REMOVE
+        return Commands.VALIDATE_TEST_ADD
+    
+    @staticmethod
+    async def validate_addtest(update, context):
+        date = update.message.text
+        print("2.Processando data da prova")     
+
+        try:
+            datetime.strptime(date, "%d/%m/%Y")
+            DB.add_test(update.message.chat.id, context.user_data["test_name"], date)
+        except Exception as e:
+            
+            await update.message.reply_text("Não consegui adicionar essa prova (Input inválido)")
+            context.user_data.clear()
+
+            return ConversationHandler.END
+
+        print("Registro com sucesso\n------")
+        await update.message.reply_text("Prova Adicionada!")
+        context.user_data.clear()
+
+        return ConversationHandler.END
+    
+    @staticmethod
+    async def remove_test_command(update, context):
+        print("/removetest Command")
+        context.user_data["test_operation"] = "remove"
+
+        if update.message.chat.type != "private":
+            await update.message.reply_text("Esse comando só pode ser usado em chats privados!!")
+            return
+
+        await update.message.reply_text("Qual a sua prova?")
+        return Commands.ASK_TEST_DATE 
+    
+    @staticmethod
+    async def validate_removetest(update, context):
+        date = update.message.text
+        print("2. Processando data da prova")     
+
+        try:
+            datetime.strptime(date, "%d/%m/%Y")
+            DB.remove_test(update.message.chat.id, context.user_data["test_name"], date)
+
+        except Exception as e:
+            print(e)
+            await update.message.reply_text("Não consegui deletar essa prova (Input inválido)")
+            context.user_data.clear()
+
+            return ConversationHandler.END
+
+        print("Registro deletado com sucesso")
+        await update.message.reply_text("Prova removida com sucesso!")
+        context.user_data.clear()
+        return ConversationHandler.END
+    
+    @staticmethod
+    async def seetests_command(update, context):
+        try:
+            tests = DB.get_tests(update.message.chat.id)["tests"]
+        except Exception:
+            return
+        
+        if not tests:
+            await update.message.reply_text("Você não possui provas salvas!!")
+            return
+
+        message = "Aqui estão suas provas:\n\n"
+
+        for test in tests:
+            message += f"<i>{test["date"]}</i> - <b>{test["name"]}</b>\n"
         
         await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)

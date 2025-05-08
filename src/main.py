@@ -15,9 +15,13 @@ def main():
     app.add_handler(CommandHandler("start", Commands.start_command))
     app.add_handler(CommandHandler("def", Commands.def_command))
     app.add_handler(CommandHandler("seetasks", Commands.seetasks_command))
+    app.add_handler(CommandHandler("seetests", Commands.seetests_command))
 
     app.add_handler(Conversations.addtask_conversation)
     app.add_handler(Conversations.removetask_conversation)
+    app.add_handler(Conversations.addtest_conversation)
+    app.add_handler(Conversations.removetest_conversation)
+
 
     app.add_handler(MessageHandler(filters.TEXT, Message.message_handler))
     

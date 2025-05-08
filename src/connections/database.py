@@ -70,5 +70,55 @@ class DbConnection:
             {
                 "tasks": 1
             })
+
+    def add_test(self, id : int, test_name : str, test_date : str):
+        if not self.db.find_one({"_id" : id}):
+            self.add_user(id)
+            self.add_test(id, test_name, test_date)
+            return
+        elif self.check_test(id, test_name, test_date):
+            raise Exception("Error in adding test: test already exists.")
+        
+        self.db.update_one({
+                "_id" : id
+            }, 
+            { 
+                "$push" : { 
+                    "tests" : {
+                        "name": test_name,
+                        "date" : test_date
+                    }
+                } 
+            })
+    
+    def remove_test(self, id : int, test_name : str, test_date : str):
+        self.db.update_one({
+                "_id" : id
+            }, 
+            { 
+                "$pull" : { 
+                    "tests" : {
+                        "name" : test_name,
+                        "date" : test_date
+                    }
+                } 
+            })
+        
+    def check_test(self, id : int, test_name : str, test_date : str):
+        return self.db.find_one({
+                "_id" : id,
+                "tests" : {
+                    "name" : test_name,
+                    "date" : test_date
+                },
+            })
+    
+    def get_tests(self, id : int):
+        return self.db.find_one({
+                "_id" : id
+            }, 
+            {
+                "tests": 1
+            })
     
 DB = DbConnection()
