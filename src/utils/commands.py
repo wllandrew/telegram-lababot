@@ -1,4 +1,5 @@
 from datetime import datetime
+from connections.Wiki import Wiki
 from connections.Database import DB
 import connections.Dictionary as dic
 from telegram.ext import ConversationHandler
@@ -262,3 +263,22 @@ class Commands:
             message += f"<i>{test["date"]}</i> - <b>{test["name"]}</b>\n"
         
         await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
+    
+    @staticmethod
+    async def wiki_command(update, context):
+        print("/wiki command")
+        argument = update.message.text
+        argument = argument.replace("/wiki", "")
+
+        if not argument:
+            await update.message.reply_text("O comando /wiki deve ser usado como: <b>/wiki</b> <i>termo</i>.",
+                                            parse_mode=cts.ParseMode.HTML)
+        
+        page = Wiki.get_page(argument)
+
+        if page:
+            message = f"<b>{argument.capitalize()}</b>, segundo a Wikipedia:\n\n" + f"<i>{page.summary}</i>"
+            await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
+            return
+        
+        await update.message.reply_text("Não consegui achar uma página para isso...")
