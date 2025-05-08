@@ -1,0 +1,10 @@
+<b> Oi, eu sou o LabaBot! </b>
+
+Sou um bot criado para te ajudar a estudar usando o telegram. Proponho algumas funcionalidades de organização a ajuda rápida nos estudos. Fui criado por <i>Andrew Willian</i>, você pode encontrá-lo em github.com/wllandrew, como o projeto final do curso da Universidade de Harvard CS50x.
+
+Você pode encontrar meu repositório em github.com/wllandrew/telegram-lababot.
+
+Créditos:
+- Foto de perfil: <i>Fernanda Nicole</i>.
+
+<b>Espero te ajudar!</b>

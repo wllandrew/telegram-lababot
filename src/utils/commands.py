@@ -1,3 +1,4 @@
+from env import FILE_LOCATION
 from datetime import datetime
 from connections.Wiki import Wiki
 from connections.Database import DB
@@ -12,16 +13,20 @@ class Commands:
 
     @staticmethod
     async def start_command(update, context):
-        print("/start command\n------")
-        await update.message.reply_text("Eu sou o LabaBot, um bot que te ajuda a estudar.\nUse <b>/</b> para ver meus comandos.",
-                                        parse_mode=cts.ParseMode.HTML)
+        print("/start or /help command\n------")
+        with open(f"{FILE_LOCATION}\\src\\utils\\files\\help.txt", "r", encoding="UTF-8") as f:
+            await update.message.reply_text(f.read(), parse_mode=cts.ParseMode.HTML)
 
     @staticmethod
     async def hello_command(update, context):
-        print("/hello comand\n------")
-        await update.message.reply_text("Olá, eu sou o <b>Lababot</b>, um bot criado por <i>wllandrew @ github</i>, como posso te ajudar?",
-                                        parse_mode=cts.ParseMode.HTML)
+        print("hello comand\n------")
+        with open(f"{FILE_LOCATION}\\src\\utils\\files\\hello.txt", "r", encoding="UTF-8") as f:
+            await update.message.reply_text(f.read(), parse_mode=cts.ParseMode.HTML)
     
+    """
+    Dictionary Handler
+    """
+
     @staticmethod
     async def def_command(update, context):
         print("/def command\n")
@@ -54,13 +59,38 @@ class Commands:
                 count += 1
         
         await update.message.reply_text(f"{message}</i>", parse_mode=cts.ParseMode.HTML)
-        
 
-    ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE, ASK_TEST_DATE, VALIDATE_TEST_ADD, VALIDATE_TEST_REMOVE = range(6)
+    """
+    Wikipedia Handler
+    """
+     
+    @staticmethod
+    async def wiki_command(update, context):
+        print("/wiki command\n------")
+        argument = update.message.text
+        argument = argument.replace("/wiki", "")
+
+        if not argument:
+            await update.message.reply_text("O comando /wiki deve ser usado como: <b>/wiki</b> <i>termo</i>.",
+                                            parse_mode=cts.ParseMode.HTML)
+        
+        page = Wiki.get_page(argument)
+
+        if page:
+            message = f"<b>{argument.capitalize()}</b>, segundo a Wikipedia:\n\n" + f"<i>{page.summary}</i>"
+            await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
+            return
+        
+        await update.message.reply_text("Não consegui achar uma página para isso...")
+
+    """
+    Handlers for Add and remove task Conversations
+    """
+    ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE = range(3)
 
     @staticmethod
     async def add_task_command(update, context):
-        print("/addtask Command")
+        print("/addtask Command\n------")
         context.user_data["task_operation"] = "add"
 
         if update.message.chat.type != "private":
@@ -88,7 +118,7 @@ class Commands:
     @staticmethod
     async def validate_addtask(update, context):
         date = update.message.text
-        print("2.Processando data da tarefa")     
+        print("2.Processando data da tarefa\n------")     
 
         try:
             datetime.strptime(date, "%d/%m/%Y")
@@ -129,7 +159,7 @@ class Commands:
     @staticmethod
     async def validate_removetask(update, context):
         date = update.message.text
-        print("2. Processando data da tarefa")     
+        print("2. Processando data da tarefa\n------")     
 
         try:
             datetime.strptime(date, "%d/%m/%Y")
@@ -142,7 +172,7 @@ class Commands:
 
             return ConversationHandler.END
 
-        print("Registro deletado com sucesso")
+        print("Registro deletado com sucesso\n------")
         await update.message.reply_text("Tarefa removida com sucesso!")
         context.user_data.clear()
         return ConversationHandler.END
@@ -165,9 +195,16 @@ class Commands:
         
         await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
 
+
+    """
+    Handlers for Add and Remove test Conversation
+    """
+
+    ASK_TEST_DATE, VALIDATE_TEST_ADD, VALIDATE_TEST_REMOVE = range(3)
+
     @staticmethod
     async def add_test_command(update, context):
-        print("/addtest Command")
+        print("/addtest Command\n------")
         context.user_data["test_operation"] = "add"
 
         if update.message.chat.type != "private":
@@ -195,7 +232,7 @@ class Commands:
     @staticmethod
     async def validate_addtest(update, context):
         date = update.message.text
-        print("2.Processando data da prova")     
+        print("2.Processando data da prova\n------")     
 
         try:
             datetime.strptime(date, "%d/%m/%Y")
@@ -215,7 +252,7 @@ class Commands:
     
     @staticmethod
     async def remove_test_command(update, context):
-        print("/removetest Command")
+        print("/removetest Command\n------")
         context.user_data["test_operation"] = "remove"
 
         if update.message.chat.type != "private":
@@ -228,7 +265,7 @@ class Commands:
     @staticmethod
     async def validate_removetest(update, context):
         date = update.message.text
-        print("2. Processando data da prova")     
+        print("2. Processando data da prova\n------")     
 
         try:
             datetime.strptime(date, "%d/%m/%Y")
@@ -241,7 +278,7 @@ class Commands:
 
             return ConversationHandler.END
 
-        print("Registro deletado com sucesso")
+        print("Registro deletado com sucesso\n------")
         await update.message.reply_text("Prova removida com sucesso!")
         context.user_data.clear()
         return ConversationHandler.END
@@ -264,21 +301,3 @@ class Commands:
         
         await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
     
-    @staticmethod
-    async def wiki_command(update, context):
-        print("/wiki command")
-        argument = update.message.text
-        argument = argument.replace("/wiki", "")
-
-        if not argument:
-            await update.message.reply_text("O comando /wiki deve ser usado como: <b>/wiki</b> <i>termo</i>.",
-                                            parse_mode=cts.ParseMode.HTML)
-        
-        page = Wiki.get_page(argument)
-
-        if page:
-            message = f"<b>{argument.capitalize()}</b>, segundo a Wikipedia:\n\n" + f"<i>{page.summary}</i>"
-            await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
-            return
-        
-        await update.message.reply_text("Não consegui achar uma página para isso...")

@@ -11,8 +11,8 @@ def main():
     """
     app = Application.builder().token(env.TOKEN).build()
 
+    app.add_handler(CommandHandler(["start", "help"], Commands.start_command))    
     app.add_handler(CommandHandler("hello", Commands.hello_command))
-    app.add_handler(CommandHandler("start", Commands.start_command))
     app.add_handler(CommandHandler("def", Commands.def_command))
     app.add_handler(CommandHandler("seetasks", Commands.seetasks_command))
     app.add_handler(CommandHandler("seetests", Commands.seetests_command))

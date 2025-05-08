@@ -1,0 +1,25 @@
+<b> Oi, eu sou o LabaBot! </b>
+
+Estes são meus comandos:
+
+-> Comandos gerais:
+
+/help : guia dos meus comandos.
+/hello : um pouco mais sobre mim.
+
+-> Para adquirir <i>conhecimento</i>:
+
+/def <i>{palavra}</i> : retorna a definição do dicionário.
+/wiki <i>{termo}</i> : retorna a definição pela Wikipedia.
+
+-> Para organizar <i>tarefas</i>:
+
+/addtask : para adicionar uma tarefa.
+/removetask : para remover uma tarefa.
+/seetasks : para ver suas tarefas
+
+-> Para organizar <i>provas</i>:
+
+/addtest : para adicionar uma prova.
+/removetest: para remover uma prova.
+/seetests : para ver suas provas.

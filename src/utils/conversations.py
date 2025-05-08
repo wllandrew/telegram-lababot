@@ -4,7 +4,11 @@ from telegram.ext import ConversationHandler, MessageHandler, CommandHandler, fi
 
 class Conversations:
     
-    ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE, ASK_TEST_DATE, VALIDATE_TEST_ADD, VALIDATE_TEST_REMOVE = range(6)
+    """
+    Task conversations
+    """
+
+    ASK_DATE, VALIDATE_ADD, VALIDATE_REMOVE = range(3)
 
     addtask_conversation = ConversationHandler(
             entry_points=[CommandHandler("addtask", Commands.add_task_command)],
@@ -24,6 +28,11 @@ class Conversations:
             fallbacks=[CommandHandler("cancel", Commands.conversation_cancel)]
         )
     
+    """
+    Test conversations
+    """
+    ASK_TEST_DATE, VALIDATE_TEST_ADD, VALIDATE_TEST_REMOVE = range(3)
+
     addtest_conversation = ConversationHandler(
             entry_points=[CommandHandler("addtest", Commands.add_test_command)],
             states={
