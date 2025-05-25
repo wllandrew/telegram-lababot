@@ -50,3 +50,8 @@ class Conversations:
                 },
             fallbacks=[CommandHandler("cancel", Commands.conversation_cancel)]
         )
+    
+    """
+    Timer conversations.
+    """
+    

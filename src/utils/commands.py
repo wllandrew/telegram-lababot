@@ -5,6 +5,7 @@ from connections.Database import DB
 import connections.Dictionary as dic
 from telegram.ext import ConversationHandler
 from telegram import constants as cts
+from utils.JobQueue import JobHandler
 
 class Commands:
     """
@@ -109,7 +110,7 @@ class Commands:
         print("1.Processando nome da tarefa")
 
         context.user_data["task_name"] = name
-        await update.message.reply_text("Qual a data para entrega? (DD/MM/AAAA")
+        await update.message.reply_text("Qual a data para entrega? (DD/MM/AAAA)")
 
         if context.user_data["task_operation"] == "remove":
             return Commands.VALIDATE_REMOVE
@@ -223,7 +224,7 @@ class Commands:
         print("1.Processando prova")
 
         context.user_data["test_name"] = name
-        await update.message.reply_text("Qual a data da prova? (DD/MM/AAAA")
+        await update.message.reply_text("Qual a data da prova? (DD/MM/AAAA)")
 
         if context.user_data["test_operation"] == "remove":
             return Commands.VALIDATE_TEST_REMOVE
@@ -233,12 +234,16 @@ class Commands:
     async def validate_addtest(update, context):
         date = update.message.text
         print("2.Processando data da prova\n------")     
+        context.user_data["test_date"] = date
 
         try:
             datetime.strptime(date, "%d/%m/%Y")
+            JobHandler.set_test_timer(update, context)
             DB.add_test(update.message.chat.id, context.user_data["test_name"], date)
+
         except Exception as e:
             
+            print(e)
             await update.message.reply_text("Não consegui adicionar essa prova (Input inválido)")
             context.user_data.clear()
 
@@ -246,6 +251,7 @@ class Commands:
 
         print("Registro com sucesso\n------")
         await update.message.reply_text("Prova Adicionada!")
+
         context.user_data.clear()
 
         return ConversationHandler.END
@@ -265,10 +271,11 @@ class Commands:
     @staticmethod
     async def validate_removetest(update, context):
         date = update.message.text
-        print("2. Processando data da prova\n------")     
+        print("2. Processando data da prova\n------")    
+        context.user_data["test_date"] = date 
 
         try:
-            datetime.strptime(date, "%d/%m/%Y")
+            datetime.strptime(date, r"%d/%m/%Y")
             DB.remove_test(update.message.chat.id, context.user_data["test_name"], date)
 
         except Exception as e:
@@ -277,9 +284,13 @@ class Commands:
             context.user_data.clear()
 
             return ConversationHandler.END
-
+        
+        job_removed = JobHandler.remove_jobs(context.user_data["test_name"], context)
+        message_text = "Prova removida com sucesso!" if job_removed else "Não consegui achar essa prova!"
+        
         print("Registro deletado com sucesso\n------")
-        await update.message.reply_text("Prova removida com sucesso!")
+        await update.message.reply_text(message_text)
+
         context.user_data.clear()
         return ConversationHandler.END
     
@@ -301,3 +312,12 @@ class Commands:
         
         await update.message.reply_text(message, parse_mode=cts.ParseMode.HTML)
     
+    @staticmethod
+    async def clear_tasks(update, context):
+        chat_id = update.message.chat_id
+        DB.clear_tasks(chat_id)
+
+    @staticmethod
+    async def clear_tests(update, context):
+        chat_id = update.message.chat_id
+        DB.clear_tests(chat_id)

@@ -70,6 +70,16 @@ class DbConnection:
             {
                 "tasks": 1
             })
+    
+    def clear_tasks(self, id: int):
+        return self.db.update_one({
+                "_id" : id
+            },
+            {
+                "$set" : {
+                    "tasks" : []    
+                }
+            })
 
     def add_test(self, id : int, test_name : str, test_date : str):
         if not self.db.find_one({"_id" : id}):
@@ -119,6 +129,16 @@ class DbConnection:
             }, 
             {
                 "tests": 1
+            })
+    
+    def clear_tests(self, id: int):
+        return self.db.update_one({
+                "_id" : id
+            },
+            {
+                "$set" : {
+                    "tests" : []  
+                }
             })
     
 DB = DbConnection()
