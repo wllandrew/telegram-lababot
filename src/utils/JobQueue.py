@@ -1,5 +1,3 @@
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
 from datetime import date, datetime
 from connections.Database import DB
 
@@ -12,16 +10,16 @@ class JobHandler:
     @staticmethod
     async def test_timer(context):
         job = context.job
-        DB.remove_task(job.chat_id, job.name, job.data)
-        await context.bot.send_message(job.chat_id, text=f"A sua prova de {job.name} é hoje!!")
+        DB.remove_test(job.chat_id, job.name, job.data)
+        await context.bot.send_message(job.chat_id, text=f"\U000026A0 Você tem uma prova hoje!!:\n{job.data}  -  {job.name}\n")
 
     @staticmethod
     def set_test_timer(update, context):     
         test_date = datetime.strptime(context.user_data["test_date"], "%d/%m/%Y")
 
-        if test_date.date() < date.today():
+        if test_date.date() <= date.today():
             raise Exception("Invalid date")
-        
+
         context.job_queue.run_once(JobHandler.test_timer, test_date, name=context.user_data["test_name"], chat_id=update.message.chat_id, data=context.user_data["test_date"])
     
     @staticmethod
