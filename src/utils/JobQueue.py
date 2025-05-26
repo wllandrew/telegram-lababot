@@ -4,7 +4,7 @@ from connections.Database import DB
 class JobHandler:
     
     """
-    Handlers primários dos tests
+    Handlers dos tests
     """
 
     @staticmethod
@@ -32,4 +32,40 @@ class JobHandler:
         for job in current_jobs:
             job.schedule_removal()
         return True
+    
+    """
+    Handlers do pomodoro
+    """
+
+    @staticmethod
+    async def round_timer(context):
+        job = context.job
+        await context.bot.send_message(job.chat_id, text=f"Vamos para o round {job.data}!")
+    
+    @staticmethod
+    async def break_timer(context):
+        job = context.job
+        await context.bot.send_message(job.chat_id, text=f"Vamos tirar uma pausa de {job.data} minutos.")
+    
+    @staticmethod
+    async def pomodoro_fim(context):
+        job = context.job
+        await context.bot.send_message(job.chat_id, text=f"Fim dessa sessão. Tire uma pausa maior e se distraia!")
+
+    @staticmethod
+    def set_pomodoro_job(update, context):
+        time_sum = context.user_data["round_time"]
+
+        for rounds in range(context.user_data["qtd_rounds"]):
+            if rounds != 0:
+                context.job_queue.run_once(JobHandler.break_timer, time_sum, name="Pomodoro", chat_id=update.message.chat_id, data=context.user_data["break_time"])
+                timer += context.user_data["break_time"]
+            
+            context.job_queue.run_once(JobHandler.round_timer, time_sum, name="Pomodoro", chat_id=update.message.chat_id, data=rounds+1)
+            timer += context.user_data["round_time"]  
+
+        context.job_queue.run_once(JobHandler.pomodoro_fim, time_sum, name="Pomodoro", chat_id=update.message.chat_id, data=rounds+1)
+
+                   
+    
     

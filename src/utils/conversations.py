@@ -1,4 +1,3 @@
-import env
 from utils.Commands import Commands
 from telegram.ext import ConversationHandler, MessageHandler, CommandHandler, filters
 
@@ -54,4 +53,14 @@ class Conversations:
     """
     Timer conversations.
     """
-    
+    ASK_POM_TIME, ASK_POM_ROUNDS, ASK_BREAK_TIME = range(3)
+
+    pomodoro_conversation = ConversationHandler(
+            entry_points=[CommandHandler("startpomodoro", Commands.start_pomodoro)],
+            states={
+                    ASK_POM_TIME : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_pomodoro_time)],
+                    ASK_POM_ROUNDS : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_pom_round)],
+                    ASK_BREAK_TIME : [MessageHandler(filters.TEXT & ~filters.COMMAND, Commands.ask_break_time)]
+                },
+            fallbacks=[CommandHandler("cancel", Commands.conversation_cancel)]
+        )

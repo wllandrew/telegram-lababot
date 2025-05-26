@@ -275,7 +275,7 @@ class Commands:
         context.user_data["test_date"] = date 
 
         try:
-            datetime.strptime(date, r"%d/%m/%Y")
+            datetime.strptime(date, "%d/%m/%Y")
             DB.remove_test(update.message.chat.id, context.user_data["test_name"], date)
 
         except Exception as e:
@@ -321,3 +321,102 @@ class Commands:
     async def clear_tests(update, context):
         chat_id = update.message.chat_id
         DB.clear_tests(chat_id)
+    
+    """
+    Pomodoro conversation commands
+    """
+
+    ASK_POM_TIME, ASK_POM_ROUNDS, ASK_BREAK_TIME = range(3)
+
+    @staticmethod
+    async def start_pomodoro(update, context):
+        type = update.message.chat.type
+
+        if type != "private":
+            await update.message.reply_text("Esse comando está disponível apenas para chats privados!!")
+            return ConversationHandler.END
+
+        await update.message.reply_text("Quantos minutos para cada round? (minutos)")
+    
+        return Commands.ASK_POM_TIME
+
+    @staticmethod
+    async def ask_pomodoro_time(update, context):
+        reply = update.message.text
+
+        try:
+            reply = int(reply)
+            if reply <= 0:
+                raise Exception()
+        except Exception:
+            await update.message.reply_text("Quantidade de tempo inválido!")
+            return ConversationHandler.END
+        
+        context.user_data["round_time"] = reply
+
+        return Commands.ASK_POM_ROUNDS
+
+    @staticmethod
+    async def ask_pom_round(update, context):
+        reply = update.message.text
+
+        try:
+            reply = int(reply)
+            if reply <= 0:
+                raise Exception()
+        except Exception:
+            await update.message.reply_text("Quantidade de rounds inválida!")
+            context.user_data.clear()
+            return ConversationHandler.END
+        
+        context.user_data["qtd_rounds"] = reply
+    
+        return Commands.ASK_BREAK_TIME
+    
+    @staticmethod
+    async def ask_break_time(update, context):
+        reply = update.message.text
+
+        try:
+            reply = int(reply)
+            if reply <= 0:
+                raise Exception()
+        except Exception:
+            await update.message.reply_text("Quantidade de tempo inválida!")
+            context.user_data.clear()
+            return ConversationHandler.END
+        
+        context.user_data["break_time"] = reply
+
+        JobHandler.set_pomodoro_job(update, context)
+        context.user_data.clear()
+        
+        try:
+            if context.user_data["pomodoro"]:
+                raise PomodoroException("Pomodoro já está em execução")
+        except PomodoroException as e:
+            await update.message.reply_text(e.message)
+            return ConversationHandler.END
+
+        context.user_data["pomodoro"] = True
+    
+        return ConversationHandler.END
+    
+    @staticmethod
+    async def cancel_pomodoro(update, context):
+        try:
+            if not context.user_data["pomodoro"]:
+                raise PomodoroException("Pomodoro não está ativo")
+        except (KeyError, PomodoroException) as e:
+            await update.message.reply_text(e.message)
+        
+        removed = JobHandler.remove_jobs("Pomodoro", context)
+
+        context.user_data["pomodoro"] = False
+
+        await update.message.reply_text("Pomodoro cancelado!!")            
+
+
+class PomodoroException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
