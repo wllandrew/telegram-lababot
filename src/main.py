@@ -1,7 +1,7 @@
 import env
-from utils.Commands import Commands
-from utils.Messages import Message
-from utils.Conversations import Conversations
+import utils.Commands as Commands
+import utils.Messages as Message
+import utils.Conversations as Conversations
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 
 
@@ -19,7 +19,7 @@ def main():
     app.add_handler(CommandHandler("wiki", Commands.wiki_command))
     app.add_handler(CommandHandler("cleartasks", Commands.clear_tasks))
     app.add_handler(CommandHandler("cleartests", Commands.clear_tests))
-    app.add_handler(CommandHandler("cancelpomodor", Commands.cancel_pomodoro))
+    app.add_handler(CommandHandler("cancelpomodoro", Commands.cancel_pomodoro))
 
     app.add_handler(Conversations.addtask_conversation)
     app.add_handler(Conversations.removetask_conversation)
