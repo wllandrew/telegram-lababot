@@ -23,3 +23,12 @@ Estes são meus comandos:
 /addtest : para adicionar uma prova.
 /removetest: para remover uma prova.
 /seetests : para ver suas provas.
+
+-> Para configurar <i>pomodoro</i>:
+
+/startpomodoro : para começar uma sessão pomodoro.
+/cancelpomodoro : para finalizar uma sessão pomodoro.
+
+-> Outras informações úteis:
+
+Às 00:00 do dia de sua prova, ele irá enviar uma mensagem te avisando.
